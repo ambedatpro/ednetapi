@@ -50,6 +50,9 @@
     <Reference Include="ServiceStack.Text, Version=4.5.12.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ServiceStack.Text.4.5.12\lib\net45\ServiceStack.Text.dll</HintPath>
     </Reference>
+    <Reference Include="SharpRaven, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpRaven.2.2.0\lib\net45\SharpRaven.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SQLite, Version=1.0.105.2, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
@@ -60,12 +63,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FeedbackManager.cs" />
     <Compile Include="Database\CommitState.cs" />
     <Compile Include="Database\DatabaseManager.cs" />
     <Compile Include="Database\DelayedCommitDatabaseConnection.cs" />
     <Compile Include="DisposableBase.cs" />
     <Compile Include="EnumExtensions.cs" />
     <Compile Include="EventHandlerExtensions.cs" />
+    <Compile Include="BoolExtensions.cs" />
     <Compile Include="JsonInternalResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IntExtensions.cs" />
