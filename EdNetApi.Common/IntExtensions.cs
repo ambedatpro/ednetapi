@@ -12,9 +12,13 @@ namespace EdNetApi.Common
     {
         public static T GetEnumValue<T>(this int value)
         {
-            return Enum.IsDefined(typeof(T), value)
-                       ? (T)Enum.ToObject(typeof(T), value)
-                       : (T)Enum.ToObject(typeof(T), -1);
+            if (Enum.IsDefined(typeof(T), value))
+            {
+                return (T)Enum.ToObject(typeof(T), value);
+            }
+
+            FeedbackManager.SendFeedback(() => $@"Failed to cast ""{value}"" to enum ""{typeof(T).Name}""");
+            return (T)Enum.ToObject(typeof(T), -1);
         }
     }
 }

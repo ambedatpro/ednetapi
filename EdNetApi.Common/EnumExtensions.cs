@@ -10,13 +10,21 @@ namespace EdNetApi.Common
     using System.ComponentModel;
     using System.Linq;
 
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Serialization;
+
     public static class EnumExtensions
     {
         public static string Description(this Enum @enum)
         {
-            var description =
-                GetAttributeValue<DescriptionAttribute, string>(@enum, attribute => attribute.Description);
-            return description;
+            var value = GetAttributeValue<DescriptionAttribute, string>(@enum, attribute => attribute.Description);
+            return value;
+        }
+
+        public static string JsonProperty(this Enum @enum)
+        {
+            var value = GetAttributeValue<JsonPropertyAttribute, string>(@enum, attribute => attribute.PropertyName);
+            return value;
         }
 
         private static TValue GetAttributeValue<TAttribute, TValue>(Enum @enum, Func<TAttribute, TValue> getValueFunc)

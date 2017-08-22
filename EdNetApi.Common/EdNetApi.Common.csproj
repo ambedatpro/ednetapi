@@ -71,6 +71,8 @@
     <Compile Include="EnumExtensions.cs" />
     <Compile Include="EventHandlerExtensions.cs" />
     <Compile Include="BoolExtensions.cs" />
+    <Compile Include="FeedbackPreviewEventArgs.cs" />
+    <Compile Include="StringEventArgs.cs" />
     <Compile Include="JsonInternalResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IntExtensions.cs" />

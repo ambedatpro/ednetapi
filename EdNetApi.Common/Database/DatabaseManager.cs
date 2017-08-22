@@ -36,6 +36,11 @@ namespace EdNetApi.Common.Database
 
         public string DatabaseFilePath { get; }
 
+        public TConnection CreateNonDelayConnection()
+        {
+            return (TConnection)Activator.CreateInstance(typeof(TConnection), _factory, 0);
+        }
+
         public void ForceCommit()
         {
             _databaseConnection?.ForceCommitAndDispose();

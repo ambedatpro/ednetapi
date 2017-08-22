@@ -7,14 +7,16 @@
 namespace EdNetApi.Common
 {
     using System;
-    using System.Threading.Tasks;
 
     using SharpRaven;
-    using SharpRaven.Data;
 
     public static class FeedbackManager
     {
         private static RavenClient ravenClient;
+
+        public static event EventHandler<FeedbackPreviewEventArgs> PreviewFeedback;
+
+        public static event EventHandler<StringEventArgs> FeedbackSent;
 
         public static void Initialize(bool allowAnonymousErrorFeedback)
         {
@@ -29,7 +31,18 @@ namespace EdNetApi.Common
         {
             try
             {
-                //ravenClient?.Capture(new SentryEvent(messageFunc()));
+                var message = messageFunc();
+
+                var previewFeedBack = new FeedbackPreviewEventArgs(message);
+                PreviewFeedback.Raise(null, previewFeedBack);
+
+                if (previewFeedBack.Handled)
+                {
+                    return;
+                }
+
+                // ravenClient?.Capture(new SentryEvent(messageFunc()));
+                FeedbackSent.Raise(null, new StringEventArgs(message));
             }
             catch
             {
