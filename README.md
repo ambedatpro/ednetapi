@@ -1,23 +1,25 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Build status](https://ci.appveyor.com/api/projects/status/0v7befd1pjlbeiw7?svg=true)](https://ci.appveyor.com/project/mbedatpro/ednetapi) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=U7R8ZABUHMFRW)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Build status](https://ci.appveyor.com/api/projects/status/0v7befd1pjlbeiw7?svg=true)](https://ci.appveyor.com/project/mbedatpro/ednetapi) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=U7R8ZABUHMFRW) [![NuGet](https://img.shields.io/nuget/v/Nuget.Core.svg)](https://www.nuget.org/packages/EdNetApi/)
 
 # EdNetApi
 Elite: Dangerous .NET/C# API
 
 This library is for C# developers who wish to create applications for the game Elite: Dangerous (https://www.elitedangerous.com/).
 
-# Namespaces
+## Namespaces
 
-## EdNetApi.Journal
+### EdNetApi.Journal
 
 The Journal namespace contains logic for continuously reading the journal log files output by the game. This is wrapped by the EdNetApi.Information namespace and it's recommended you use that instead.
 
-## EdNetApi.Information
+### EdNetApi.Information
 
 The Information namespace contains logic for getting information from the journal log files.
 
 ### Examples
 
-# Legal
+For now, please see the source code for Project.cs in EdNetApi.Example
+
+## Legal
 
 MIT License
 
