@@ -22,6 +22,8 @@ namespace EdNetApi.Information.Database
 
     internal class DatabaseConnection : DelayedCommitDatabaseConnection
     {
+        private readonly object _lockObjecct = new object();
+
         public DatabaseConnection(IDbConnectionFactory factory, int commitDelay)
             : base(factory, commitDelay)
         {
@@ -29,90 +31,107 @@ namespace EdNetApi.Information.Database
 
         public void CreateTablesIfNotExists()
         {
-            Connection.CreateTableIfNotExists<SettingsEntry>();
-            Connection.CreateTableIfNotExists<JournalEntrySource>();
-            Connection.CreateTableIfNotExists<LatestEvent>();
-            Connection.CreateTableIfNotExists<StatisticsEntry>();
-            Connection.CreateTableIfNotExists<Feedback>();
+            lock (_lockObjecct)
+            {
+                Connection.CreateTableIfNotExists<SettingsEntry>();
+                Connection.CreateTableIfNotExists<JournalEntrySource>();
+                Connection.CreateTableIfNotExists<StatisticsEntry>();
+                Connection.CreateTableIfNotExists<Feedback>();
+            }
         }
 
         public void InsertFeedback(Feedback feedback)
         {
-            Connection.Insert(feedback);
+            lock (_lockObjecct)
+            {
+                Connection.Insert(feedback);
+            }
         }
 
         public void InsertJournalEntrySource(JournalEntrySource source)
         {
-            Connection.Insert(source);
-        }
-
-        public void InsertOrUpdateLatestEvent(LatestEvent latestEvent)
-        {
-            DatabaseManager<DatabaseConnection>.InsertOrUpdate(
-                Connection,
-                latestEvent,
-                le => le.EventType == latestEvent.EventType,
-                le => new { le.JournalEntryJson });
+            lock (_lockObjecct)
+            {
+                Connection.Insert(source);
+            }
         }
 
         public void InsertOrUpdateSettingsEntry<T>(SettingType type, T value)
         {
-            var json = typeof(T) == typeof(string) ? (string)(object)value : JsonConvert.SerializeObject(value);
-            var settingsEntry = new SettingsEntry { Type = type, Value = json };
-            DatabaseManager<DatabaseConnection>.InsertOrUpdate(Connection, settingsEntry, se => se.Type == type);
+            lock (_lockObjecct)
+            {
+                var json = typeof(T) == typeof(string) ? (string)(object)value : JsonConvert.SerializeObject(value);
+                var settingsEntry = new SettingsEntry { Type = type, Value = json };
+                DatabaseManager<DatabaseConnection>.InsertOrUpdate(Connection, settingsEntry, se => se.Type == type);
+            }
         }
 
         public void InsertOrUpdateStatisticsEntry(StatisticsEntry statisticsEntry)
         {
-            var whereClause = GetStatisticsWhereClause(statisticsEntry, true);
-            var query = Connection.From<StatisticsEntry>().WithSqlFilter(sql => sql + whereClause);
-            var existingStatisticsEntry = Connection.Select(query).SingleOrDefault();
+            lock (_lockObjecct)
+            {
+                var whereClause = GetStatisticsWhereClause(statisticsEntry, true);
+                var query = Connection.From<StatisticsEntry>().WithSqlFilter(sql => sql + whereClause);
+                var existingStatisticsEntry = Connection.Select(query).SingleOrDefault();
 
-            if (existingStatisticsEntry != null)
-            {
-                existingStatisticsEntry.Count++;
-                Connection.Update(existingStatisticsEntry);
-            }
-            else
-            {
-                Connection.Insert(statisticsEntry);
+                if (existingStatisticsEntry != null)
+                {
+                    existingStatisticsEntry.Count++;
+                    Connection.Update(existingStatisticsEntry);
+                }
+                else
+                {
+                    Connection.Insert(statisticsEntry);
+                }
             }
         }
 
         public bool SelectFeedbackExists(string message)
         {
-            return Connection.Select<Feedback>(f => f.Message == message).Any();
+            lock (_lockObjecct)
+            {
+                return Connection.Select<Feedback>(f => f.Message == message).Any();
+            }
         }
 
-        ////public Dictionary<JournalEventType, JournalEntry> SelectLatestEvents()
-        ////{
-        ////    var latestEvents = Connection.Select<LatestEvent>();
-        ////    return latestEvents.ToDictionary(
-        ////        latestEvent => latestEvent.EventType,
-        ////        latestEvent => JournalManager.ParseJournalEntry(latestEvent.JournalEntryJson));
-        ////}
         [CanBeNull]
         public T SelectSetting<T>(SettingType type)
         {
-            var settingsEntry = Connection.Select<SettingsEntry>(se => se.Type == type).SingleOrDefault();
-            if (settingsEntry == null)
+            lock (_lockObjecct)
             {
-                return default(T);
-            }
+                var settingsEntry = Connection.Select<SettingsEntry>(se => se.Type == type).SingleOrDefault();
+                if (settingsEntry == null)
+                {
+                    return default(T);
+                }
 
-            return typeof(T) == typeof(string)
-                       ? (T)(object)settingsEntry.Value
-                       : settingsEntry.Value.DeserializeJson<T>();
+                return typeof(T) == typeof(string)
+                           ? (T)(object)settingsEntry.Value
+                           : settingsEntry.Value.DeserializeJson<T>();
+            }
         }
 
         public List<StatisticsData> SelectStatistics(StatisticsData statisticsFilter)
         {
-            var whereClause = GetStatisticsWhereClause(statisticsFilter, false);
-            var query = Connection.From<StatisticsEntry>().OrderByDescending(se => se.Count);
-            query.WhereExpression = whereClause;
-            var statisticEntries = Connection.Select(query);
-            var statisticDatas = statisticEntries.Select(ConvertToData).ToList();
-            return statisticDatas;
+            lock (_lockObjecct)
+            {
+                var query = Connection.From<StatisticsEntry>().OrderByDescending(se => se.Count);
+                query.WhereExpression = GetStatisticsWhereClause(statisticsFilter, false);
+                var statisticEntries = Connection.Select(query);
+                var statisticDatas = statisticEntries.Select(ConvertToData).ToList();
+                return statisticDatas;
+            }
+        }
+
+        public int SelectStatisticsSum(StatisticsData statisticsFilter)
+        {
+            lock (_lockObjecct)
+            {
+                var query = Connection.From<StatisticsEntry>().Select(Sql.Sum(nameof(StatisticsData.Count)));
+                query.WhereExpression = GetStatisticsWhereClause(statisticsFilter, false);
+                var sum = Connection.Scalar<int>(query);
+                return sum;
+            }
         }
 
         private static StatisticsData ConvertToData(StatisticsEntry statisticsEntry)

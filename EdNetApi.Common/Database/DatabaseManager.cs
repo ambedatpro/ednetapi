@@ -18,8 +18,9 @@ namespace EdNetApi.Common.Database
         where TConnection : DelayedCommitDatabaseConnection
     {
         private readonly OrmLiteConnectionFactory _factory;
+        private readonly object _lockObject = new object();
 
-        private TConnection _databaseConnection;
+        private volatile TConnection _databaseConnection;
 
         public DatabaseManager(string databaseFolderPath)
         {
@@ -36,26 +37,27 @@ namespace EdNetApi.Common.Database
 
         public string DatabaseFilePath { get; }
 
-        public TConnection CreateNonDelayConnection()
-        {
-            return (TConnection)Activator.CreateInstance(typeof(TConnection), _factory, 0);
-        }
-
         public void ForceCommit()
         {
-            _databaseConnection?.ForceCommitAndDispose();
-            _databaseConnection = null;
+            lock (_lockObject)
+            {
+                _databaseConnection?.ForceCommitAndDispose();
+                _databaseConnection = null;
+            }
         }
 
         public TConnection GetOrCreateConnection()
         {
-            if (_databaseConnection != null && _databaseConnection.PauseCommit())
+            lock (_lockObject)
             {
+                if (_databaseConnection != null && _databaseConnection.PauseCommit())
+                {
+                    return _databaseConnection;
+                }
+
+                _databaseConnection = (TConnection)Activator.CreateInstance(typeof(TConnection), _factory, 5000);
                 return _databaseConnection;
             }
-
-            _databaseConnection = (TConnection)Activator.CreateInstance(typeof(TConnection), _factory, 5000);
-            return _databaseConnection;
         }
 
         internal static void InsertOrUpdate<T>(
@@ -102,8 +104,11 @@ namespace EdNetApi.Common.Database
 
             if (disposeManagedResources)
             {
-                _databaseConnection?.RollbackAndDispose();
-                _databaseConnection = null;
+                lock (_lockObject)
+                {
+                    _databaseConnection?.RollbackAndDispose();
+                    _databaseConnection = null;
+                }
             }
 
             base.Dispose(disposeManagedResources);

@@ -10,7 +10,7 @@ namespace EdNetApi.Journal
 
     using Newtonsoft.Json;
 
-    public class UnknownJournalEntry : JournalEntry
+    internal class UnknownJournalEntry : JournalEntry
     {
         public const JournalEventType EventConst = JournalEventType.UnknownValue;
 

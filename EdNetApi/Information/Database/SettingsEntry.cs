@@ -8,7 +8,7 @@ namespace EdNetApi.Information.Database
 {
     using ServiceStack.DataAnnotations;
 
-    public class SettingsEntry
+    internal class SettingsEntry
     {
         [AutoIncrement]
         public int Id { get; set; }

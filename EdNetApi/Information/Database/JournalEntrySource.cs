@@ -9,7 +9,7 @@ namespace EdNetApi.Information.Database
     using ServiceStack.DataAnnotations;
 
     [CompositeIndex(true, nameof(Filename), nameof(LineNumber))]
-    public class JournalEntrySource
+    internal class JournalEntrySource
     {
         [AutoIncrement]
         public int Id { get; set; }

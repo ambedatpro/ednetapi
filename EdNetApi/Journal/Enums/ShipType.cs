@@ -24,6 +24,9 @@ namespace EdNetApi.Journal.Enums
         CobraMkIii,
         Dolphin,
 
+        [JsonProperty("Federation_Dropship")]
+        FederationDropship,
+
         [JsonProperty("Independant_Trader")]
         [Description("Independant Trader")]
         IndependantTrader,

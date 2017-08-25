@@ -6,7 +6,7 @@
 
 namespace EdNetApi.Information.Database
 {
-    public class LastProcessedJournal
+    internal class LastProcessedJournal
     {
         public string Filename { get; set; }
 

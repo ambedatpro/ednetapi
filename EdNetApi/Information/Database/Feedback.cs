@@ -10,7 +10,7 @@ namespace EdNetApi.Information.Database
 
     using ServiceStack.DataAnnotations;
 
-    public class Feedback
+    internal class Feedback
     {
         [AutoIncrement]
         public int Id { get; set; }

@@ -39,7 +39,6 @@ namespace EdNetApi.Information
         private LocationData _currentLocation;
         private MissionAcceptedJournalEntry[] _currentMissions;
 
-        ////private Dictionary<JournalEventType, JournalEntry> _latestEvents;
         public InformationManager(string databaseFolderPath, bool allowAnonymousErrorFeedback)
         {
             _version = Assembly.GetExecutingAssembly().GetName().Version.ToString(4);
@@ -119,18 +118,11 @@ namespace EdNetApi.Information
         {
             var connection = _databaseManager.GetOrCreateConnection();
             {
-                var statistics = connection.SelectStatistics(filter);
-                return statistics.Sum(stat => stat.Count);
+                var sum = connection.SelectStatisticsSum(filter);
+                return sum;
             }
         }
 
-        ////[CanBeNull]
-        ////public T GetLatestEvent<T>()
-        ////    where T : JournalEntry
-        ////{
-        ////    var eventType = GetEventType(typeof(T));
-        ////    return _latestEvents.ContainsKey(eventType) ? (T)_latestEvents[eventType] : default(T);
-        ////}
         public void Start()
         {
             Stop();
@@ -206,11 +198,6 @@ namespace EdNetApi.Information
             }
         }
 
-        ////private static JournalEventType GetEventType(Type journalEntryType)
-        ////{
-        ////    var eventType = (JournalEventType)journalEntryType.GetField("EventConst").GetValue(null);
-        ////    return eventType;
-        ////}
         [CanBeNull]
         private StatisticsEntry CreateStatisticsEntry(JournalEntry journalEntry)
         {
@@ -269,11 +256,11 @@ namespace EdNetApi.Information
 
         private void OnFeedbackSent(object sender, StringEventArgs eventArgs)
         {
-            var feedback = new Feedback { Timestamp = DateTime.UtcNow, Message = eventArgs.Value };
-            using (var connection = _databaseManager.CreateNonDelayConnection())
+            var feedback = new Feedback { Timestamp = DateTime.UtcNow, Message = eventArgs.Value.ToLowerInvariant() };
+            var connection = _databaseManager.GetOrCreateConnection();
             {
                 connection.InsertFeedback(feedback);
-                connection.ForceCommitAndDispose();
+                connection.DelayedCommitAndDispose();
             }
         }
 
@@ -294,14 +281,14 @@ namespace EdNetApi.Information
 
         private void OnPreviewFeedback(object sender, FeedbackPreviewEventArgs eventArgs)
         {
-            using (var connection = _databaseManager.CreateNonDelayConnection())
+            var connection = _databaseManager.GetOrCreateConnection();
             {
-                if (connection.SelectFeedbackExists(eventArgs.Value))
+                if (connection.SelectFeedbackExists(eventArgs.Value.ToLowerInvariant()))
                 {
                     eventArgs.Handled = true;
                 }
 
-                connection.RollbackAndDispose();
+                connection.DelayedCommitAndDispose();
             }
         }
 
@@ -327,10 +314,6 @@ namespace EdNetApi.Information
                 UpdateCurrentLocation(connection, journalEntry);
                 UpdateCurrentMissions(connection, journalEntry);
 
-                ////_latestEvents[journalEntry.Event] = journalEntry;
-                connection.InsertOrUpdateLatestEvent(
-                    new LatestEvent { EventType = journalEntry.Event, JournalEntryJson = journalEntry.SourceJson });
-
                 var statisticsEntry = CreateStatisticsEntry(journalEntry);
                 if (statisticsEntry != null)
                 {
@@ -351,9 +334,6 @@ namespace EdNetApi.Information
                 CurrentShip = connection.SelectSetting<ShipData>(SettingType.Ship);
                 CurrentLocation = connection.SelectSetting<LocationData>(SettingType.Location);
                 CurrentMissions = connection.SelectSetting<MissionAcceptedJournalEntry[]>(SettingType.ActiveMissions);
-
-                //// _currentLoadout = connection.SelectSetting<LocationData>(SettingType.CurrentLoadout);
-                ////_latestEvents = connection.SelectLatestEvents();
             }
         }
 
@@ -400,10 +380,6 @@ namespace EdNetApi.Information
 
             CurrentCommander = new CommanderData { Commander = name };
             connection.InsertOrUpdateSettingsEntry(SettingType.Commander, CurrentCommander);
-        }
-
-        private void UpdateCurrentLoadout(DatabaseConnection connection, JournalEntry journalEntry)
-        {
         }
 
         private void UpdateCurrentLocation(DatabaseConnection connection, JournalEntry journalEntry)

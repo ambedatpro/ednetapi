@@ -6,14 +6,13 @@
 
 namespace EdNetApi.Information.Database
 {
-    public enum SettingType
+    internal enum SettingType
     {
         SchemaVersion = 0,
         LastProcessedJournal,
         Commander,
         Ship,
         Location,
-        CurrentLoadout,
         ActiveMissions
     }
 }

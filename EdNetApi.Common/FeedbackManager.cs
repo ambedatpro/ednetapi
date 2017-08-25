@@ -42,7 +42,7 @@ namespace EdNetApi.Common
                     return;
                 }
 
-                ravenClient?.Capture(new SentryEvent(messageFunc()));
+                ravenClient?.Capture(new SentryEvent(message));
                 FeedbackSent.Raise(null, new StringEventArgs(message));
             }
             catch

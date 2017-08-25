@@ -10,7 +10,7 @@ namespace EdNetApi.Information.Database
 
     using ServiceStack.DataAnnotations;
 
-    public class StatisticsEntry : IStatistics
+    internal class StatisticsEntry : IStatistics
     {
         [AutoIncrement]
         public int Id { get; internal set; }

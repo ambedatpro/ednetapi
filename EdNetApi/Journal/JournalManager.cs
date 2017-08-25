@@ -20,7 +20,7 @@ namespace EdNetApi.Journal
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    public class JournalManager : DisposableBase
+    internal class JournalManager : DisposableBase
     {
         private static Guid savedGamesKnownFolderGuid = new Guid("4C5C32FF-BB9D-43b0-B5B4-2D72E54EAAA4");
 
