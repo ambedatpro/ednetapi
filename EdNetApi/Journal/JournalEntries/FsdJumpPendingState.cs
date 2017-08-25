@@ -6,6 +6,7 @@
 
 namespace EdNetApi.Journal.JournalEntries
 {
+    using System.ComponentModel;
     using Newtonsoft.Json;
 
     public class FsdJumpPendingState
@@ -15,9 +16,11 @@ namespace EdNetApi.Journal.JournalEntries
         }
 
         [JsonProperty("State")]
+        [Description("")]
         public string State { get; internal set; }
 
         [JsonProperty("Trend")]
+        [Description("")]
         public int Trend { get; internal set; }
     }
 }

@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
     using System.Collections.Generic;
 
     using Newtonsoft.Json;
@@ -26,6 +27,7 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Manifest")]
+        [Description("array of passenger records, each containing:")]
         public List<PassengersManifest> ManifestList { get; internal set; }
     }
 }

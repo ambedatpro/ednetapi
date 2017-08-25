@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using Newtonsoft.Json;
 
@@ -25,12 +26,15 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Health")]
+        [Description("")]
         public double Health { get; internal set; }
 
         [JsonProperty("PlayerPilot")]
+        [Description("bool – true if player is piloting the ship/fighter taking damage")]
         public bool PlayerPilot { get; internal set; }
 
         [JsonProperty("Fighter")]
+        [Description("bool – true for ship-launched fighter")]
         public bool Fighter { get; internal set; }
     }
 }

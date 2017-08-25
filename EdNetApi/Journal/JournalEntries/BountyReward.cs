@@ -6,6 +6,7 @@
 
 namespace EdNetApi.Journal.JournalEntries
 {
+    using System.ComponentModel;
     using Newtonsoft.Json;
 
     public class BountyReward
@@ -15,9 +16,11 @@ namespace EdNetApi.Journal.JournalEntries
         }
 
         [JsonProperty("Faction")]
+        [Description("")]
         public string Faction { get; internal set; }
 
         [JsonProperty("Reward")]
+        [Description("")]
         public int Reward { get; internal set; }
     }
 }

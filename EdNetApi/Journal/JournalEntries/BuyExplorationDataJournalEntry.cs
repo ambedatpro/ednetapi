@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using Newtonsoft.Json;
 
@@ -25,9 +26,11 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("System")]
+        [Description("")]
         public string System { get; internal set; }
 
         [JsonProperty("Cost")]
+        [Description("")]
         public int Cost { get; internal set; }
     }
 }

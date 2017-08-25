@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using EdNetApi.Common;
     using EdNetApi.Journal.Enums;
@@ -28,27 +29,35 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Trade")]
+        [Description("new rank")]
         public int TradeRaw { get; internal set; }
 
         [JsonIgnore]
+        [Description("new rank")]
         public TradeRank Trade => TradeRaw.GetEnumValue<TradeRank>();
 
         [JsonProperty("Federation")]
+        [Description("")]
         public int FederationRaw { get; internal set; }
 
         [JsonIgnore]
+        [Description("")]
         public FederationRank Federation => FederationRaw.GetEnumValue<FederationRank>();
 
         [JsonProperty("Explore")]
+        [Description("new rank")]
         public int ExploreRaw { get; internal set; }
 
         [JsonIgnore]
+        [Description("new rank")]
         public ExplorationRank Explore => ExploreRaw.GetEnumValue<ExplorationRank>();
 
         [JsonProperty("Empire")]
+        [Description("")]
         public int EmpireRaw { get; internal set; }
 
         [JsonIgnore]
+        [Description("")]
         public EmpireRank Empire => EmpireRaw.GetEnumValue<EmpireRank>();
     }
 }

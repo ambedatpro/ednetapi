@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using EdNetApi.Common;
     using EdNetApi.Journal.Enums;
@@ -28,12 +29,15 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Reason")]
+        [Description("reason for denial - Reasons include: NoSpace, TooLarge, Hostile, Offences, Distance, ActiveFighter, NoReason")]
         public string ReasonRaw { get; internal set; }
 
         [JsonIgnore]
+        [Description("reason for denial - Reasons include: NoSpace, TooLarge, Hostile, Offences, Distance, ActiveFighter, NoReason")]
         public DockingDeniedType Reason => ReasonRaw.GetEnumValue<DockingDeniedType>();
 
         [JsonProperty("StationName")]
+        [Description("name of station")]
         public string StationName { get; internal set; }
     }
 }

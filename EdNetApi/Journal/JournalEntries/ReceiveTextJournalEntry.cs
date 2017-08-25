@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using Newtonsoft.Json;
 
@@ -25,18 +26,23 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("From")]
+        [Description("")]
         public string FromId { get; internal set; }
 
         [JsonProperty("Message")]
+        [Description("")]
         public string MessageId { get; internal set; }
 
         [JsonProperty("Message_Localised")]
+        [Description("")]
         public string Message { get; internal set; }
 
         [JsonProperty("Channel")]
+        [Description("(wing/local/voicechat/friend/player/npc)")]
         public string Channel { get; internal set; }
 
         [JsonProperty("From_Localised")]
+        [Description("")]
         public string From { get; internal set; }
     }
 }

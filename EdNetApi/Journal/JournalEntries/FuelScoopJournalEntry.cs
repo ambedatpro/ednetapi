@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using Newtonsoft.Json;
 
@@ -25,9 +26,11 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Scooped")]
+        [Description("tons fuel scooped")]
         public double Scooped { get; internal set; }
 
         [JsonProperty("Total")]
+        [Description("total fuel level after scooping")]
         public double Total { get; internal set; }
     }
 }

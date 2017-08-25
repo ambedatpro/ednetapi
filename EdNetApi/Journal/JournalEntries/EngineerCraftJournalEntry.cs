@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
     using System.Collections.Generic;
 
     using Newtonsoft.Json;
@@ -26,15 +27,19 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Engineer")]
+        [Description("name of engineer")]
         public string Engineer { get; internal set; }
 
         [JsonProperty("Blueprint")]
+        [Description("name of blueprint")]
         public string Blueprint { get; internal set; }
 
         [JsonProperty("Level")]
+        [Description("crafting level")]
         public int Level { get; internal set; }
 
         [JsonProperty("Ingredients")]
+        [Description("JSON array of objects with names and quantities of materials required")]
         public List<EngineerCraftIngredient> IngredientsList { get; internal set; }
     }
 }

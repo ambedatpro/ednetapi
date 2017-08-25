@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using Newtonsoft.Json;
 
@@ -25,15 +26,19 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Submitted")]
+        [Description("true or false")]
         public bool Submitted { get; internal set; }
 
         [JsonProperty("Interdictor")]
+        [Description("interdicting pilot name")]
         public string Interdictor { get; internal set; }
 
         [JsonProperty("IsPlayer")]
+        [Description("whether player or npc")]
         public bool IsPlayer { get; internal set; }
 
         [JsonProperty("Faction")]
+        [Description("if npc")]
         public string Faction { get; internal set; }
     }
 }

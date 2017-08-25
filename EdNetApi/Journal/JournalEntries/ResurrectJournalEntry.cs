@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using Newtonsoft.Json;
 
@@ -25,12 +26,15 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Option")]
+        [Description("the option selected on the insurance rebuy screen")]
         public string Option { get; internal set; }
 
         [JsonProperty("Cost")]
+        [Description("the price paid")]
         public int Cost { get; internal set; }
 
         [JsonProperty("Bankrupt")]
+        [Description("whether the commander declared bankruptcy")]
         public bool Bankrupt { get; internal set; }
     }
 }

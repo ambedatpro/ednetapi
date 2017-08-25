@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
     using System.Collections.Generic;
 
     using Newtonsoft.Json;
@@ -26,15 +27,19 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Rewards")]
+        [Description("an array of Faction names and the Reward values, as the target can have multiple bounties payable by different factions")]
         public List<BountyReward> RewardsList { get; internal set; }
 
         [JsonProperty("Target")]
+        [Description("")]
         public string Target { get; internal set; }
 
         [JsonProperty("TotalReward")]
+        [Description("")]
         public int TotalReward { get; internal set; }
 
         [JsonProperty("VictimFaction")]
+        [Description("the victim’s faction")]
         public string VictimFaction { get; internal set; }
     }
 }

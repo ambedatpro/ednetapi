@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using EdNetApi.Common;
     using EdNetApi.Journal.Enums;
@@ -28,12 +29,15 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Item")]
+        [Description("all, wear, hull, paint, or name of module")]
         public string ItemRaw { get; internal set; }
 
         [JsonIgnore]
+        [Description("all, wear, hull, paint, or name of module")]
         public RepairType Item => ItemRaw.GetEnumValue<RepairType>();
 
         [JsonProperty("Cost")]
+        [Description("cost of repair")]
         public int Cost { get; internal set; }
     }
 }

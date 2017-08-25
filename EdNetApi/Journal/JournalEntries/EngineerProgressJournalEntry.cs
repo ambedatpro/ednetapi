@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using EdNetApi.Common;
     using EdNetApi.Journal.Enums;
@@ -28,15 +29,19 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Engineer")]
+        [Description("name of engineer")]
         public string Engineer { get; internal set; }
 
         [JsonProperty("Progress")]
+        [Description("progress stage (Invited/Acquainted/Unlocked/Barred)")]
         public string ProgressRaw { get; internal set; }
 
         [JsonIgnore]
+        [Description("progress stage (Invited/Acquainted/Unlocked/Barred)")]
         public ProgressState Progress => ProgressRaw.GetEnumValue<ProgressState>();
 
         [JsonProperty("Rank")]
+        [Description("rank reached (when unlocked)")]
         public int Rank { get; internal set; }
     }
 }

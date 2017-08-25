@@ -6,6 +6,7 @@
 
 namespace EdNetApi.Journal.JournalEntries
 {
+    using System.ComponentModel;
     using Newtonsoft.Json;
 
     public class MaterialsManufactured
@@ -15,9 +16,11 @@ namespace EdNetApi.Journal.JournalEntries
         }
 
         [JsonProperty("Name")]
+        [Description("")]
         public string Name { get; internal set; }
 
         [JsonProperty("Count")]
+        [Description("")]
         public int Count { get; internal set; }
     }
 }

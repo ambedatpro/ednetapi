@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
     using System.Collections.Generic;
 
     using EdNetApi.Common;
@@ -29,15 +30,19 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Type")]
+        [Description("(CombatBond/Bounty/Trade/Settlement/Scannable)")]
         public string TypeRaw { get; internal set; }
 
         [JsonIgnore]
+        [Description("(CombatBond/Bounty/Trade/Settlement/Scannable)")]
         public VoucherType Type => TypeRaw.GetEnumValue<VoucherType>();
 
         [JsonProperty("Amount")]
+        [Description("(Net amount received, after any broker fee)")]
         public int Amount { get; internal set; }
 
         [JsonProperty("Factions")]
+        [Description("array of faction/amount pairs (for Type=Bounty)")]
         public List<RedeemVoucherFaction> FactionsList { get; internal set; }
     }
 }

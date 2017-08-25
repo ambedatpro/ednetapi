@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using EdNetApi.Common;
     using EdNetApi.Journal.Enums;
@@ -28,9 +29,11 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("ShieldsUp")]
+        [Description("")]
         public bool ShieldsUpRaw { get; internal set; }
 
         [JsonIgnore]
+        [Description("")]
         public ShieldState ShieldsUp => ShieldsUpRaw.GetEnumValue<ShieldState>();
     }
 }

@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using EdNetApi.Common;
     using EdNetApi.Journal.Enums;
@@ -28,9 +29,11 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Type")]
+        [Description("- Type will typically be one of \"DataLink\", \"DataPoint\", \"ListeningPost\", \"AbandonedDataLog\", \"WreckedShip\", etc")]
         public string TypeRaw { get; internal set; }
 
         [JsonIgnore]
+        [Description("- Type will typically be one of \"DataLink\", \"DataPoint\", \"ListeningPost\", \"AbandonedDataLog\", \"WreckedShip\", etc")]
         public DataLinkType Type => TypeRaw.GetEnumValue<DataLinkType>();
     }
 }

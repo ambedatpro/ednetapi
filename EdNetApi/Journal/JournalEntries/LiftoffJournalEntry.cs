@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using Newtonsoft.Json;
 
@@ -25,12 +26,15 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("PlayerControlled")]
+        [Description("(bool) false if ship dismissed when player is in SRV, true if player is taking off")]
         public bool PlayerControlled { get; internal set; }
 
         [JsonProperty("Latitude")]
+        [Description("")]
         public double Latitude { get; internal set; }
 
         [JsonProperty("Longitude")]
+        [Description("")]
         public double Longitude { get; internal set; }
     }
 }

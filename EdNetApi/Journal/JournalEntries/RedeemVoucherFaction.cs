@@ -6,6 +6,7 @@
 
 namespace EdNetApi.Journal.JournalEntries
 {
+    using System.ComponentModel;
     using Newtonsoft.Json;
 
     public class RedeemVoucherFaction
@@ -15,9 +16,11 @@ namespace EdNetApi.Journal.JournalEntries
         }
 
         [JsonProperty("Faction")]
+        [Description("name of faction (for types other than Bounty)")]
         public string Faction { get; internal set; }
 
         [JsonProperty("Amount")]
+        [Description("(Net amount received, after any broker fee)")]
         public int Amount { get; internal set; }
     }
 }

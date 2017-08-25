@@ -7,6 +7,7 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
+    using System.ComponentModel;
 
     using Newtonsoft.Json;
 
@@ -25,9 +26,11 @@ namespace EdNetApi.Journal.JournalEntries
         public override DateTime Timestamp { get; internal set; }
 
         [JsonProperty("Message")]
+        [Description("message from data link")]
         public string MessageId { get; internal set; }
 
         [JsonProperty("Message_Localised")]
+        [Description("")]
         public string Message { get; internal set; }
     }
 }
