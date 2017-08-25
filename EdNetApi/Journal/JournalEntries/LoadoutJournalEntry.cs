@@ -7,8 +7,8 @@
 namespace EdNetApi.Journal.JournalEntries
 {
     using System;
-    using System.ComponentModel;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     using EdNetApi.Common;
     using EdNetApi.Journal.Enums;
