@@ -26,8 +26,6 @@ namespace EdNetApi.Information
 
         public string Body { get; set; }
 
-        public string BodyName { get; set; }
-
         public string Ship { get; set; }
 
         public string Interdictor { get; set; }

@@ -55,9 +55,15 @@ namespace EdNetApi.Journal
         {
             Stop();
 
-            _journalFolderWatcher = new FileSystemWatcher(JournalFolderPath, "*.log");
+            _journalFolderWatcher = new FileSystemWatcher();
+            _journalFolderWatcher.NotifyFilter |=
+                NotifyFilters.CreationTime | NotifyFilters.LastWrite | NotifyFilters.Size;
+            _journalFolderWatcher.IncludeSubdirectories = false;
+            _journalFolderWatcher.Path = JournalFolderPath;
+            _journalFolderWatcher.Filter = "*.log";
             _journalFolderWatcher.Created += OnJournalFolderFileCreated;
             _journalFolderWatcher.Changed += OnJournalFolderFileChanged;
+            _journalFolderWatcher.EnableRaisingEvents = true;
 
             _journalCancellationTokenSource = new CancellationTokenSource();
             _processJournalsTask = Task.Factory.StartNew(
@@ -80,6 +86,7 @@ namespace EdNetApi.Journal
         {
             if (_journalFolderWatcher != null)
             {
+                _journalFolderWatcher.EnableRaisingEvents = false;
                 _journalFolderWatcher.Created -= OnJournalFolderFileCreated;
                 _journalFolderWatcher.Changed -= OnJournalFolderFileChanged;
                 _journalFolderWatcher.Dispose();
@@ -283,7 +290,7 @@ namespace EdNetApi.Journal
 
         private void OnJournalFolderFileChanged(object sender, FileSystemEventArgs eventArgs)
         {
-            _proceedToNextJournalEvent.Set();
+            _proceedReadingJournalEvent.Set();
         }
 
         private void OnJournalFolderFileCreated(object sender, FileSystemEventArgs eventArgs)
@@ -389,7 +396,8 @@ namespace EdNetApi.Journal
                     }
                     else if (newJournalFileInfos.Count > 1)
                     {
-                        // All entries read and there are more files to process
+                        // All entries read from current file and there are more files to process
+                        // Set proceedToNextFile so that this file will be excluded from next file listing
                         proceedToNextFile = true;
                         continue;
                     }
@@ -429,6 +437,10 @@ namespace EdNetApi.Journal
         {
             while (true)
             {
+                _proceedReadingJournalEvent.Reset();
+
+                var proceedToNextJournalAfterRead = _proceedToNextJournalEvent.IsSet;
+
                 string journalJson;
                 while ((journalJson = journalStreamReader.ReadLine()) != null)
                 {
@@ -443,10 +455,15 @@ namespace EdNetApi.Journal
                         new JournalEntryEventArgs(lastJournalFilename, lastJournalLineNumber, journalEntry));
                 }
 
+                if (proceedToNextJournalAfterRead)
+                {
+                    return true;
+                }
+
                 WaitHandle.WaitAny(
                     new[]
                         {
-                            _proceedReadingJournalEvent.WaitHandle, _proceedReadingJournalEvent.WaitHandle,
+                            _proceedReadingJournalEvent.WaitHandle, _proceedToNextJournalEvent.WaitHandle,
                             cancellationToken.WaitHandle
                         });
 
@@ -454,13 +471,6 @@ namespace EdNetApi.Journal
                 {
                     return false;
                 }
-
-                if (_proceedToNextJournalEvent.IsSet)
-                {
-                    return true;
-                }
-
-                _proceedReadingJournalEvent.Reset();
             }
         }
     }
