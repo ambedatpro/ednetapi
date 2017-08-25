@@ -115,6 +115,15 @@ namespace EdNetApi.Information
             }
         }
 
+        public int GetEventStatisticsSum(StatisticsData filter)
+        {
+            var connection = _databaseManager.GetOrCreateConnection();
+            {
+                var statistics = connection.SelectStatistics(filter);
+                return statistics.Sum(stat => stat.Count);
+            }
+        }
+
         ////[CanBeNull]
         ////public T GetLatestEvent<T>()
         ////    where T : JournalEntry

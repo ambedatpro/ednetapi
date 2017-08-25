@@ -9,6 +9,7 @@ namespace EdNetApi.Common
     using System;
 
     using SharpRaven;
+    using SharpRaven.Data;
 
     public static class FeedbackManager
     {
@@ -41,7 +42,7 @@ namespace EdNetApi.Common
                     return;
                 }
 
-                // ravenClient?.Capture(new SentryEvent(messageFunc()));
+                ravenClient?.Capture(new SentryEvent(messageFunc()));
                 FeedbackSent.Raise(null, new StringEventArgs(message));
             }
             catch
