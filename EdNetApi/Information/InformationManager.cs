@@ -33,7 +33,6 @@ namespace EdNetApi.Information
         private readonly DatabaseManager<DatabaseConnection> _databaseManager;
         private readonly string _version;
 
-        private LastProcessedJournal _lastProcessedJournal;
         private CommanderData _currentCommander;
         private ShipData _currentShip;
         private LocationData _currentLocation;
@@ -127,13 +126,19 @@ namespace EdNetApi.Information
         {
             Stop();
 
-            if (_lastProcessedJournal != null)
+            var connection = _databaseManager.GetOrCreateConnection();
             {
-                _journalManager.Start(true, _lastProcessedJournal.Filename, _lastProcessedJournal.LineNumber);
-            }
-            else
-            {
-                _journalManager.Start(true);
+                var lastProcessedJournal = connection.SelectLastProcessedJournal();
+                connection.DelayedCommitAndDispose();
+
+                if (lastProcessedJournal != null)
+                {
+                    _journalManager.Start(true, lastProcessedJournal.Filename, lastProcessedJournal.LineNumber);
+                }
+                else
+                {
+                    _journalManager.Start(true);
+                }
             }
         }
 
@@ -296,10 +301,6 @@ namespace EdNetApi.Information
         {
             var connection = _databaseManager.GetOrCreateConnection();
             {
-                connection.InsertOrUpdateSettingsEntry(
-                    SettingType.LastProcessedJournal,
-                    new LastProcessedJournal { Filename = filename, LineNumber = lineNumber });
-
                 connection.InsertJournalEntrySource(
                     new JournalEntrySource
                     {
@@ -328,8 +329,6 @@ namespace EdNetApi.Information
         {
             var connection = _databaseManager.GetOrCreateConnection();
             {
-                _lastProcessedJournal =
-                    connection.SelectSetting<LastProcessedJournal>(SettingType.LastProcessedJournal);
                 CurrentCommander = connection.SelectSetting<CommanderData>(SettingType.Commander);
                 CurrentShip = connection.SelectSetting<ShipData>(SettingType.Ship);
                 CurrentLocation = connection.SelectSetting<LocationData>(SettingType.Location);

@@ -205,6 +205,7 @@
     <Compile Include="Journal\Enums\CrewRole.cs" />
     <Compile Include="Journal\Enums\DataLinkType.cs" />
     <Compile Include="Journal\Enums\PowerplayState.cs" />
+    <Compile Include="Journal\ExternalException.cs" />
     <Compile Include="Journal\UnknownJournalEntry.cs" />
     <Compile Include="Journal\JournalEntry.cs" />
     <Compile Include="Journal\JournalEventType.cs" />

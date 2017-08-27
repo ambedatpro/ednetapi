@@ -7,7 +7,6 @@
 namespace EdNetApi.Journal
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -56,8 +55,9 @@ namespace EdNetApi.Journal
             Stop();
 
             _journalFolderWatcher = new FileSystemWatcher();
-            _journalFolderWatcher.NotifyFilter |=
-                NotifyFilters.CreationTime | NotifyFilters.LastWrite | NotifyFilters.Size;
+            _journalFolderWatcher.NotifyFilter |= NotifyFilters.CreationTime | NotifyFilters.LastAccess
+                                                  | NotifyFilters.LastWrite | NotifyFilters.Size
+                                                  | NotifyFilters.FileName;
             _journalFolderWatcher.IncludeSubdirectories = false;
             _journalFolderWatcher.Path = JournalFolderPath;
             _journalFolderWatcher.Filter = "*.log";
@@ -103,46 +103,6 @@ namespace EdNetApi.Journal
             _journalCancellationTokenSource = null;
 
             _isLiveEvent.Reset();
-        }
-
-        internal static JournalEntry ParseJournalEntry(
-            string journalEntryJson,
-            string filename = null,
-            int? lineNumber = null)
-        {
-            try
-            {
-                var entry = JObject.Parse(journalEntryJson);
-                var journalEntryEvent = entry["event"]?.Value<string>().ToPascalCase();
-                if (string.IsNullOrWhiteSpace(journalEntryEvent)
-                    || !Enum.IsDefined(typeof(JournalEventType), journalEntryEvent))
-                {
-                    var filenameInfo = filename != null ? $" in file {filename}" : null;
-                    var lineNumberInfo = lineNumber != null ? $" on line {lineNumber}" : null;
-                    throw new ApplicationException($"Unknown journal entry event{filenameInfo}{lineNumberInfo}");
-                }
-
-                var journalEntryTypeName =
-                    $"{Assembly.GetExecutingAssembly().GetName().Name}.Journal.JournalEntries.{journalEntryEvent}JournalEntry";
-                var journalEntryType = Type.GetType(journalEntryTypeName);
-                if (journalEntryType == null)
-                {
-                    throw new ApplicationException($"Not implemented journal entry event: {journalEntryEvent}");
-                }
-
-                var journalEntry = (JournalEntry)entry.ToObject(journalEntryType);
-                journalEntry.SourceJson = journalEntryJson;
-                return journalEntry;
-            }
-            catch (Exception exception)
-            {
-                FeedbackManager.SendFeedback(
-                    () =>
-                        $"Error in ParseJournalEntry: {exception.Message}{Environment.NewLine}journalEntryJson: {AnonymizeJson(journalEntryJson)}");
-                var journalEntry =
-                    new UnknownJournalEntry { ParseError = exception.Message, SourceJson = journalEntryJson };
-                return journalEntry;
-            }
         }
 
         protected override void Dispose(bool disposeManagedResources)
@@ -246,39 +206,44 @@ namespace EdNetApi.Journal
             return journalFolderPath;
         }
 
-        private static List<FileInfo> GetNewJournalFileInfos(
-            IEnumerable<FileInfo> journalFileInfos,
-            string lastJournalFilename,
-            ref bool proceedToNextFile)
+        private static JournalEntry ParseJournalEntry(
+            string journalEntryJson,
+            string filename = null,
+            int? lineNumber = null)
         {
-            if (lastJournalFilename == null)
+            try
             {
-                return journalFileInfos.ToList();
+                var entry = JObject.Parse(journalEntryJson);
+                var journalEntryEvent = entry["event"]?.Value<string>().ToPascalCase();
+                if (string.IsNullOrWhiteSpace(journalEntryEvent)
+                    || !Enum.IsDefined(typeof(JournalEventType), journalEntryEvent))
+                {
+                    var filenameInfo = filename != null ? $" in file {filename}" : null;
+                    var lineNumberInfo = lineNumber != null ? $" on line {lineNumber}" : null;
+                    throw new ApplicationException($"Unknown journal entry event{filenameInfo}{lineNumberInfo}");
+                }
+
+                var journalEntryTypeName =
+                    $"{Assembly.GetExecutingAssembly().GetName().Name}.Journal.JournalEntries.{journalEntryEvent}JournalEntry";
+                var journalEntryType = Type.GetType(journalEntryTypeName);
+                if (journalEntryType == null)
+                {
+                    throw new ApplicationException($"Not implemented journal entry event: {journalEntryEvent}");
+                }
+
+                var journalEntry = (JournalEntry)entry.ToObject(journalEntryType);
+                journalEntry.SourceJson = journalEntryJson;
+                return journalEntry;
             }
-
-            var skipIfEqual = proceedToNextFile;
-            var newJournalFileInfos = journalFileInfos.SkipWhile(
-                fileInfo =>
-                    {
-                        var result = string.CompareOrdinal(fileInfo.Name, lastJournalFilename);
-                        if (result < 0)
-                        {
-                            return true;
-                        }
-
-                        if (result == 0 && skipIfEqual)
-                        {
-                            return true;
-                        }
-
-                        return false;
-                    }).ToList();
-            if (newJournalFileInfos.Any())
+            catch (Exception exception)
             {
-                proceedToNextFile = false;
+                FeedbackManager.SendFeedback(
+                    () =>
+                        $"Error in ParseJournalEntry: {exception.Message}{Environment.NewLine}journalEntryJson: {AnonymizeJson(journalEntryJson)}");
+                var journalEntry =
+                    new UnknownJournalEntry { ParseError = exception.Message, SourceJson = journalEntryJson };
+                return journalEntry;
             }
-
-            return newJournalFileInfos;
         }
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
@@ -299,18 +264,13 @@ namespace EdNetApi.Journal
         }
 
         private bool ProcessAllExistingLines(
-            ref string lastJournalFilename,
-            ref int lastJournalLineNumber,
             string filename,
             StreamReader journalStreamReader,
-            CancellationToken cancellationToken)
+            int lineNumberToStartAt,
+            CancellationToken cancellationToken,
+            out int lineNumber)
         {
-            var recoverPosition = lastJournalFilename == filename;
-            var recoverLineNumber = lastJournalLineNumber;
-
-            lastJournalFilename = filename;
-            lastJournalLineNumber = 0;
-
+            lineNumber = 0;
             string journalJson;
             while ((journalJson = journalStreamReader.ReadLine()) != null)
             {
@@ -319,14 +279,14 @@ namespace EdNetApi.Journal
                     return false;
                 }
 
-                if (recoverPosition && lastJournalLineNumber < recoverLineNumber)
+                if (lineNumber < lineNumberToStartAt)
                 {
-                    lastJournalLineNumber++;
+                    lineNumber++;
                     continue;
                 }
 
-                var journalEntry = ParseJournalEntry(journalJson, filename, ++lastJournalLineNumber);
-                JournalEntryRead.Raise(this, new JournalEntryEventArgs(filename, lastJournalLineNumber, journalEntry));
+                var journalEntry = ParseJournalEntry(journalJson, filename, ++lineNumber);
+                RaiseJournalEntryRead(new JournalEntryEventArgs(filename, lineNumber, journalEntry));
             }
 
             return true;
@@ -334,10 +294,9 @@ namespace EdNetApi.Journal
 
         private void ProcessJournals(
             CancellationToken cancellationToken,
-            string lastJournalFilename,
-            int lastJournalLineNumber)
+            string filenameToProcess,
+            int lineNumberToStartAt)
         {
-            var proceedToNextFile = false;
             while (true)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -350,67 +309,72 @@ namespace EdNetApi.Journal
                 {
                     _proceedToNextJournalEvent.Reset();
 
-                    var directoryInfo = new DirectoryInfo(JournalFolderPath);
-                    var journalFileInfos = directoryInfo.GetFiles("*.log", SearchOption.TopDirectoryOnly)
-                        .OrderBy(fi => fi.Name);
+                    var firstFilenameToProcess = filenameToProcess;
+                    var filePathsToProcess = Directory
+                        .EnumerateFiles(JournalFolderPath, "*.log", SearchOption.TopDirectoryOnly).Where(
+                            path =>
+                                {
+                                    var name = Path.GetFileName(path);
+                                    var filenameIsNew = string.CompareOrdinal(name, firstFilenameToProcess) >= 0;
+                                    return filenameIsNew;
+                                }).OrderBy(path => path).ToList();
 
-                    var newJournalFileInfos = GetNewJournalFileInfos(
-                        journalFileInfos,
-                        lastJournalFilename,
-                        ref proceedToNextFile);
-                    if (newJournalFileInfos.Count > 1)
+                    if (!filePathsToProcess.Any())
                     {
-                        // There are more than one file with unread entries
-                        _proceedToNextJournalEvent.Set();
-                    }
-
-                    var journalFileInfo = newJournalFileInfos.FirstOrDefault() ?? journalFileInfos.LastOrDefault();
-                    if (journalFileInfo == null)
-                    {
-                        // There are no journal files, wait for a file to appear
                         _proceedToNextJournalEvent.Wait(cancellationToken);
                         continue;
                     }
 
-                    var journalFileStream = File.Open(
-                        journalFileInfo.FullName,
-                        FileMode.Open,
-                        FileAccess.Read,
-                        FileShare.ReadWrite);
+                    var filePath = filePathsToProcess.First();
+                    var journalFileStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     journalStreamReader = new StreamReader(journalFileStream);
 
+                    var filename = Path.GetFileName(filePath);
+                    if (filename == null)
+                    {
+                        continue;
+                    }
+
+                    if (lineNumberToStartAt > 0
+                        && !filename.Equals(filenameToProcess, StringComparison.OrdinalIgnoreCase))
+                    {
+                        lineNumberToStartAt = 0;
+                    }
+
+                    int lineNumber;
                     if (!ProcessAllExistingLines(
-                            ref lastJournalFilename,
-                            ref lastJournalLineNumber,
-                            journalFileInfo.Name,
+                            filename,
                             journalStreamReader,
-                            cancellationToken))
+                            lineNumberToStartAt,
+                            cancellationToken,
+                            out lineNumber))
                     {
                         return;
                     }
 
-                    if (newJournalFileInfos.Count == 1)
+                    lineNumberToStartAt = 0;
+
+                    if (filePathsToProcess.Count == 1)
                     {
-                        // If this is the only new file then all historical entries have now been read
+                        // If this is the only new file, then all historical entries have now been read
                         _isLiveEvent.Set();
                     }
-                    else if (newJournalFileInfos.Count > 1)
+                    else
                     {
-                        // All entries read from current file and there are more files to process
-                        // Set proceedToNextFile so that this file will be excluded from next file listing
-                        proceedToNextFile = true;
+                        // There are more files to process
+                        filenameToProcess = Path.GetFileName(filePathsToProcess.Skip(1).First());
                         continue;
                     }
 
                     // This is the only new file, wait for new entries
-                    if (!ProcessNewLines(
-                            lastJournalFilename,
-                            ref lastJournalLineNumber,
-                            journalStreamReader,
-                            cancellationToken))
+                    if (!ProcessNewLines(filename, lineNumber, journalStreamReader, cancellationToken))
                     {
                         return;
                     }
+                }
+                catch (ExternalException externalException)
+                {
+                    throw externalException.InnerException;
                 }
                 catch (Exception exception)
                 {
@@ -431,7 +395,7 @@ namespace EdNetApi.Journal
 
         private bool ProcessNewLines(
             string lastJournalFilename,
-            ref int lastJournalLineNumber,
+            int lineNumber,
             StreamReader journalStreamReader,
             CancellationToken cancellationToken)
         {
@@ -449,10 +413,8 @@ namespace EdNetApi.Journal
                         return false;
                     }
 
-                    var journalEntry = ParseJournalEntry(journalJson, lastJournalFilename, ++lastJournalLineNumber);
-                    JournalEntryRead.Raise(
-                        this,
-                        new JournalEntryEventArgs(lastJournalFilename, lastJournalLineNumber, journalEntry));
+                    var journalEntry = ParseJournalEntry(journalJson, lastJournalFilename, ++lineNumber);
+                    RaiseJournalEntryRead(new JournalEntryEventArgs(lastJournalFilename, lineNumber, journalEntry));
                 }
 
                 if (proceedToNextJournalAfterRead)
@@ -460,17 +422,38 @@ namespace EdNetApi.Journal
                     return true;
                 }
 
-                WaitHandle.WaitAny(
-                    new[]
-                        {
-                            _proceedReadingJournalEvent.WaitHandle, _proceedToNextJournalEvent.WaitHandle,
-                            cancellationToken.WaitHandle
-                        });
-
-                if (cancellationToken.IsCancellationRequested)
+                while (true)
                 {
-                    return false;
+                    var waitResult = WaitHandle.WaitAny(
+                        new[]
+                            {
+                                _proceedReadingJournalEvent.WaitHandle, _proceedToNextJournalEvent.WaitHandle,
+                                cancellationToken.WaitHandle
+                            },
+                        1000);
+
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return false;
+                    }
+
+                    if (waitResult != WaitHandle.WaitTimeout || !journalStreamReader.EndOfStream)
+                    {
+                        break;
+                    }
                 }
+            }
+        }
+
+        private void RaiseJournalEntryRead(JournalEntryEventArgs eventArgs)
+        {
+            try
+            {
+                JournalEntryRead.Raise(this, eventArgs);
+            }
+            catch (Exception exception)
+            {
+                throw new ExternalException(exception);
             }
         }
     }

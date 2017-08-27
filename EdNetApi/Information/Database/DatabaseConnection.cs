@@ -134,6 +134,23 @@ namespace EdNetApi.Information.Database
             }
         }
 
+        public LastProcessedJournal SelectLastProcessedJournal()
+        {
+            lock (_lockObjecct)
+            {
+                var lastJournalEntrySource = Connection.Select<JournalEntrySource>()
+                    .OrderByDescending(jes => jes.Filename).ThenByDescending(jes => jes.LineNumber).Take(1)
+                    .FirstOrDefault();
+                return lastJournalEntrySource != null
+                           ? new LastProcessedJournal
+                           {
+                               Filename = lastJournalEntrySource.Filename,
+                               LineNumber = lastJournalEntrySource.LineNumber
+                           }
+                           : null;
+            }
+        }
+
         private static StatisticsData ConvertToData(StatisticsEntry statisticsEntry)
         {
             var statisticsData = new StatisticsData();

@@ -25,6 +25,7 @@ namespace EdNetApi.Journal.Enums
         Dolphin,
 
         [JsonProperty("Federation_Dropship")]
+        [Description("Federation Dropship")]
         FederationDropship,
 
         [JsonProperty("Independant_Trader")]
