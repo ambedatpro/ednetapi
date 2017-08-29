@@ -374,7 +374,8 @@ namespace EdNetApi.Journal
                 }
                 catch (ExternalException externalException)
                 {
-                    throw externalException.InnerException;
+                    // Do no send error feedback for external exceptions
+                    JournalEntryException.Raise(this, new ThreadExceptionEventArgs(externalException.InnerException));
                 }
                 catch (Exception exception)
                 {

@@ -11,7 +11,6 @@ namespace EdNetApi.Common
     using System.Linq;
 
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Serialization;
 
     public static class EnumExtensions
     {
@@ -27,7 +26,7 @@ namespace EdNetApi.Common
             return value;
         }
 
-        private static TValue GetAttributeValue<TAttribute, TValue>(Enum @enum, Func<TAttribute, TValue> getValueFunc)
+        public static TValue GetAttributeValue<TAttribute, TValue>(Enum @enum, Func<TAttribute, TValue> getValueFunc)
         {
             var enumType = @enum.GetType();
             var memberInfo = enumType.GetMember(@enum.ToString());
