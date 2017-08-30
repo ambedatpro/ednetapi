@@ -104,21 +104,33 @@ namespace EdNetApi.Information
             }
         }
 
-        public List<StatisticsData> GetEventStatistics(StatisticsData filter)
+        public List<EventStatisticsData> GetEventStatistics(EventStatisticsData filter)
         {
             var connection = _databaseManager.GetOrCreateConnection();
             {
                 var statistics = connection.SelectStatistics(filter);
+                connection.DelayedCommitAndDispose();
                 return statistics;
             }
         }
 
-        public int GetEventStatisticsSum(StatisticsData filter)
+        public int GetEventStatisticsSum(EventStatisticsData filter)
         {
             var connection = _databaseManager.GetOrCreateConnection();
             {
                 var sum = connection.SelectStatisticsSum(filter);
+                connection.DelayedCommitAndDispose();
                 return sum;
+            }
+        }
+
+        public GameStatistics GetGamePlayedStatistics()
+        {
+            var connection = _databaseManager.GetOrCreateConnection();
+            {
+                var gameStatistics = connection.SelectGamePlayedStatistics();
+                connection.DelayedCommitAndDispose();
+                return gameStatistics;
             }
         }
 
@@ -204,17 +216,17 @@ namespace EdNetApi.Information
         }
 
         [CanBeNull]
-        private StatisticsEntry CreateStatisticsEntry(JournalEntry journalEntry)
+        private EventStatisticsEntry CreateStatisticsEntry(JournalEntry journalEntry)
         {
-            var type = typeof(StatisticsEntry);
+            var type = typeof(EventStatisticsEntry);
             var statisticsEntryProperties = type.GetProperties().Where(
                 pi =>
                     {
                         switch (pi.Name)
                         {
-                            case nameof(StatisticsEntry.Id):
-                            case nameof(StatisticsEntry.Event):
-                            case nameof(StatisticsEntry.Count):
+                            case nameof(EventStatisticsEntry.Id):
+                            case nameof(EventStatisticsEntry.Event):
+                            case nameof(EventStatisticsEntry.Count):
                                 return false;
                             default:
                                 return true;
@@ -245,7 +257,7 @@ namespace EdNetApi.Information
                 return null;
             }
 
-            var statisticsEntry = new StatisticsEntry { Event = journalEntry.Event, Count = 1 };
+            var statisticsEntry = new EventStatisticsEntry { Event = journalEntry.Event, Count = 1 };
             foreach (var matchingProperty in matchingProperties)
             {
                 var value = matchingProperty.Value.GetValue(journalEntry);

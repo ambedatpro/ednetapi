@@ -105,6 +105,46 @@ namespace EdNetApi.Journal
             _isLiveEvent.Reset();
         }
 
+        internal static JournalEntry ParseJournalEntry(
+            string journalEntryJson,
+            string filename = null,
+            int? lineNumber = null)
+        {
+            try
+            {
+                var entry = JObject.Parse(journalEntryJson);
+                var journalEntryEvent = entry["event"]?.Value<string>().ToPascalCase();
+                if (string.IsNullOrWhiteSpace(journalEntryEvent)
+                    || !Enum.IsDefined(typeof(JournalEventType), journalEntryEvent))
+                {
+                    var filenameInfo = filename != null ? $" in file {filename}" : null;
+                    var lineNumberInfo = lineNumber != null ? $" on line {lineNumber}" : null;
+                    throw new ApplicationException($"Unknown journal entry event{filenameInfo}{lineNumberInfo}");
+                }
+
+                var journalEntryTypeName =
+                    $"{Assembly.GetExecutingAssembly().GetName().Name}.Journal.JournalEntries.{journalEntryEvent}JournalEntry";
+                var journalEntryType = Type.GetType(journalEntryTypeName);
+                if (journalEntryType == null)
+                {
+                    throw new ApplicationException($"Not implemented journal entry event: {journalEntryEvent}");
+                }
+
+                var journalEntry = (JournalEntry)entry.ToObject(journalEntryType);
+                journalEntry.SourceJson = journalEntryJson;
+                return journalEntry;
+            }
+            catch (Exception exception)
+            {
+                FeedbackManager.SendFeedback(
+                    () =>
+                        $"Error in ParseJournalEntry: {exception.Message}{Environment.NewLine}journalEntryJson: {AnonymizeJson(journalEntryJson)}");
+                var journalEntry =
+                    new UnknownJournalEntry { ParseError = exception.Message, SourceJson = journalEntryJson };
+                return journalEntry;
+            }
+        }
+
         protected override void Dispose(bool disposeManagedResources)
         {
             if (IsDisposed)
@@ -204,46 +244,6 @@ namespace EdNetApi.Journal
 
             var journalFolderPath = Path.Combine(savedGamesFolderPath, @"Frontier Developments\Elite Dangerous");
             return journalFolderPath;
-        }
-
-        private static JournalEntry ParseJournalEntry(
-            string journalEntryJson,
-            string filename = null,
-            int? lineNumber = null)
-        {
-            try
-            {
-                var entry = JObject.Parse(journalEntryJson);
-                var journalEntryEvent = entry["event"]?.Value<string>().ToPascalCase();
-                if (string.IsNullOrWhiteSpace(journalEntryEvent)
-                    || !Enum.IsDefined(typeof(JournalEventType), journalEntryEvent))
-                {
-                    var filenameInfo = filename != null ? $" in file {filename}" : null;
-                    var lineNumberInfo = lineNumber != null ? $" on line {lineNumber}" : null;
-                    throw new ApplicationException($"Unknown journal entry event{filenameInfo}{lineNumberInfo}");
-                }
-
-                var journalEntryTypeName =
-                    $"{Assembly.GetExecutingAssembly().GetName().Name}.Journal.JournalEntries.{journalEntryEvent}JournalEntry";
-                var journalEntryType = Type.GetType(journalEntryTypeName);
-                if (journalEntryType == null)
-                {
-                    throw new ApplicationException($"Not implemented journal entry event: {journalEntryEvent}");
-                }
-
-                var journalEntry = (JournalEntry)entry.ToObject(journalEntryType);
-                journalEntry.SourceJson = journalEntryJson;
-                return journalEntry;
-            }
-            catch (Exception exception)
-            {
-                FeedbackManager.SendFeedback(
-                    () =>
-                        $"Error in ParseJournalEntry: {exception.Message}{Environment.NewLine}journalEntryJson: {AnonymizeJson(journalEntryJson)}");
-                var journalEntry =
-                    new UnknownJournalEntry { ParseError = exception.Message, SourceJson = journalEntryJson };
-                return journalEntry;
-            }
         }
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]

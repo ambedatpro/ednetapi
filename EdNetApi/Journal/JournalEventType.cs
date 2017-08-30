@@ -16,6 +16,12 @@ namespace EdNetApi.Journal
         [Description("File header")]
         Fileheader = 0,
 
+        [Description("Triggered on the hour every hour")]
+        GamePlayed,
+
+        [Description("Triggered when OCR analysis of a mission is completed")]
+        MissionAnalyzed,
+
         [Description("Triggers at startup, when loading from main menu")]
         Cargo,
 

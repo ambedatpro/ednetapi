@@ -31,24 +31,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="JetBrains.Annotations, Version=11.0.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <HintPath>..\packages\JetBrains.Annotations.11.0.0\lib\net20\JetBrains.Annotations.dll</HintPath>
@@ -81,15 +63,17 @@
   <ItemGroup>
     <Compile Include="Information\Database\Feedback.cs" />
     <Compile Include="Information\Database\JournalEntrySource.cs" />
+    <Compile Include="Information\Datas\GamePlayedData.cs" />
     <Compile Include="Information\Datas\ShipData.cs" />
     <Compile Include="Information\Datas\LocationData.cs" />
     <Compile Include="Information\Datas\CommanderData.cs" />
     <Compile Include="Information\Database\DatabaseConnection.cs" />
     <Compile Include="Information\Database\SettingType.cs" />
     <Compile Include="Information\Database\SettingsEntry.cs" />
-    <Compile Include="Information\Database\StatisticsEntry.cs" />
-    <Compile Include="Information\IStatistics.cs" />
-    <Compile Include="Information\StatisticsData.cs" />
+    <Compile Include="Information\Database\EventStatisticsEntry.cs" />
+    <Compile Include="Information\IEventStatistics.cs" />
+    <Compile Include="Information\GameStatistics.cs" />
+    <Compile Include="Information\EventStatisticsData.cs" />
     <Compile Include="Journal\JournalEntries\ApproachSettlementJournalEntry.cs" />
     <Compile Include="Journal\JournalEntries\BountyJournalEntry.cs" />
     <Compile Include="Journal\JournalEntries\BountyReward.cs" />

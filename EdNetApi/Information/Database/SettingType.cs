@@ -12,6 +12,7 @@ namespace EdNetApi.Information.Database
         Commander,
         Ship,
         Location,
-        ActiveMissions
+        ActiveMissions,
+        GamePlayed
     }
 }
