@@ -42,14 +42,14 @@ namespace EdNetApi.Test
                 Console.WriteLine($"Current ship:        {informationManager.CurrentShip?.Ship}");
                 Console.WriteLine($"Current star system: {informationManager.CurrentLocation?.StarSystem}");
 
-                var filter = new StatisticsData { Event = JournalEventType.Docked };
+                var filter = new EventStatisticsData { Event = JournalEventType.Docked };
                 var statistics = informationManager.GetEventStatistics(filter);
                 var stat = statistics.FirstOrDefault();
                 Console.WriteLine();
                 Console.WriteLine(
                     $"Most docked station: {stat?.StationName} in {stat?.StarSystem} ({stat?.Count} times)");
 
-                filter = new StatisticsData { Event = JournalEventType.FsdJump, StarSystem = "Sol" };
+                filter = new EventStatisticsData { Event = JournalEventType.FsdJump, StarSystem = "Sol" };
                 statistics = informationManager.GetEventStatistics(filter);
                 Console.WriteLine();
                 Console.WriteLine("Ships used to visit Sol system:");
@@ -73,7 +73,7 @@ namespace EdNetApi.Test
             {
                 case JournalEventType.Docked:
                     var dockedEntry = (DockedJournalEntry)eventArgs.JournalEntry;
-                    var filter = new StatisticsData
+                    var filter = new EventStatisticsData
                     {
                         Commander = informationManager.CurrentCommander.Commander,
                         Event = JournalEventType.Docked,
