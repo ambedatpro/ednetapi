@@ -1,4 +1,4 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Build status](https://ci.appveyor.com/api/projects/status/0v7befd1pjlbeiw7?svg=true)](https://ci.appveyor.com/project/mbedatpro/ednetapi) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=U7R8ZABUHMFRW) [![NuGet](https://img.shields.io/nuget/v/EdNetApi.svg)](https://www.nuget.org/packages/EdNetApi/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Build status](https://ci.appveyor.com/api/projects/status/0v7befd1pjlbeiw7?svg=true)](https://ci.appveyor.com/project/mbedatpro/ednetapi) [![NuGet](https://img.shields.io/nuget/v/EdNetApi.svg)](https://www.nuget.org/packages/EdNetApi/)
 
 # EdNetApi
 Elite: Dangerous .NET/C# API
