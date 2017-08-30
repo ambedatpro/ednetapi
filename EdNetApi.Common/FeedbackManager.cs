@@ -25,6 +25,11 @@ namespace EdNetApi.Common
             {
                 ravenClient = new RavenClient(
                     "https://30fdef43059c4140b548b963fccc339a:1cf2e03a994940b5afa228f41f25ed6f@sentry.io/206498");
+                ravenClient.BeforeSend = requester =>
+                    {
+                        requester.Packet.ServerName = "AnonymousFeedback";
+                        return requester;
+                    };
             }
         }
 
