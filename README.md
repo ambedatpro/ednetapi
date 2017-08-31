@@ -8,7 +8,7 @@ This library is for C# developers who wish to create applications for the game E
 
 ## Examples
 
-For now, please see the source code for Project.cs in EdNetApi.Example
+For now, please see the source code for [Project.cs](https://github.com/mbedatpro/ednetapi/blob/master/EdNetApi.Example/Program.cs) in EdNetApi.Example
 
 ## Legal
 
