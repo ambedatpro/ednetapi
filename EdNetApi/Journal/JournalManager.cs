@@ -48,7 +48,7 @@ namespace EdNetApi.Journal
 
         public string JournalFolderPath { get; }
 
-        public bool IsLive => _isLiveEvent.IsSet;
+        private bool IsLive => _isLiveEvent.IsSet;
 
         public void Start(bool waitForLiveEntries, string lastJournalFilename, int lastJournalLineNumber)
         {
@@ -286,7 +286,7 @@ namespace EdNetApi.Journal
                 }
 
                 var journalEntry = ParseJournalEntry(journalJson, filename, ++lineNumber);
-                RaiseJournalEntryRead(new JournalEntryEventArgs(filename, lineNumber, journalEntry));
+                RaiseJournalEntryRead(new JournalEntryEventArgs(filename, lineNumber, journalEntry, IsLive));
             }
 
             return true;
@@ -415,7 +415,8 @@ namespace EdNetApi.Journal
                     }
 
                     var journalEntry = ParseJournalEntry(journalJson, lastJournalFilename, ++lineNumber);
-                    RaiseJournalEntryRead(new JournalEntryEventArgs(lastJournalFilename, lineNumber, journalEntry));
+                    RaiseJournalEntryRead(
+                        new JournalEntryEventArgs(lastJournalFilename, lineNumber, journalEntry, IsLive));
                 }
 
                 if (proceedToNextJournalAfterRead)

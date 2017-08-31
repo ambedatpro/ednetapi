@@ -10,11 +10,12 @@ namespace EdNetApi.Journal
 
     public class JournalEntryEventArgs : EventArgs
     {
-        internal JournalEntryEventArgs(string filename, int lineNumber, JournalEntry journalEntry)
+        internal JournalEntryEventArgs(string filename, int lineNumber, JournalEntry journalEntry, bool isLive)
         {
             Filename = filename;
             LineNumber = lineNumber;
             JournalEntry = journalEntry;
+            IsLive = isLive;
         }
 
         public string Filename { get; }
@@ -22,5 +23,7 @@ namespace EdNetApi.Journal
         public int LineNumber { get; }
 
         public JournalEntry JournalEntry { get; }
+
+        public bool IsLive { get; }
     }
 }

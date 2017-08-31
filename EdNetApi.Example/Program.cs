@@ -7,9 +7,11 @@
 namespace EdNetApi.Test
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
 
     using EdNetApi.Common;
     using EdNetApi.Information;
@@ -19,6 +21,8 @@ namespace EdNetApi.Test
     internal class Program
     {
         private static InformationManager informationManager;
+        private static List<string> journalFilenames;
+        private static string currentFilename;
 
         public static void Main(string[] args)
         {
@@ -31,8 +35,11 @@ namespace EdNetApi.Test
 
             using (informationManager = new InformationManager(appFolderPath, allowAnonymousErrorFeedback: true))
             {
-                // JournalEntryRead event will only trigger for new events, after all historical events have been read
                 informationManager.JournalEntryRead += OnJournalEntryRead;
+                informationManager.JournalEntryException += OnJournalEntryException;
+
+                journalFilenames = informationManager.ListJournalFiles();
+                currentFilename = string.Empty;
 
                 // Start will read and cache all historical events and then return
                 // If this is the first time then it might take a few minutes
@@ -69,6 +76,26 @@ namespace EdNetApi.Test
 
         private static void OnJournalEntryRead(object sender, JournalEntryEventArgs eventArgs)
         {
+            if (!eventArgs.IsLive)
+            {
+                if (eventArgs.Filename == currentFilename)
+                {
+                    return;
+                }
+
+                currentFilename = eventArgs.Filename;
+
+                // Do not react on historical events. There may be thousands of them.
+                var index = journalFilenames.IndexOf(eventArgs.Filename);
+                if (index >= 0)
+                {
+                    var percentCompleted = (int)(index * 100 / (float)journalFilenames.Count);
+                    Console.WriteLine($"{percentCompleted}% completed");
+                }
+
+                return;
+            }
+
             switch (eventArgs.JournalEntry.Event)
             {
                 case JournalEventType.Docked:
@@ -95,6 +122,11 @@ namespace EdNetApi.Test
                     Console.WriteLine($"{eventArgs.JournalEntry.Event} ({eventArgs.JournalEntry.Event.Description()})");
                     break;
             }
+        }
+
+        private static void OnJournalEntryException(object sender, ThreadExceptionEventArgs eventArgs)
+        {
+            // Any exceptions that were thrown in the OnJournalEntryRead will end up here
         }
     }
 }

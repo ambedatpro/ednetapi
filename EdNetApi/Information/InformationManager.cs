@@ -134,6 +134,15 @@ namespace EdNetApi.Information
             }
         }
 
+        public List<string> ListJournalFiles()
+        {
+            var journalFiles = Directory.GetFiles(
+                _journalManager.JournalFolderPath,
+                "*.log",
+                SearchOption.TopDirectoryOnly).Select(Path.GetFileName).ToList();
+            return journalFiles;
+        }
+
         public void Start()
         {
             Stop();
@@ -289,11 +298,7 @@ namespace EdNetApi.Information
         private void OnJournalEntryRead(object sender, JournalEntryEventArgs eventArgs)
         {
             ProcessJournalEntry(eventArgs.Filename, eventArgs.LineNumber, true, eventArgs.JournalEntry);
-
-            if (_journalManager.IsLive)
-            {
-                JournalEntryRead.Raise(sender, eventArgs);
-            }
+            JournalEntryRead.Raise(sender, eventArgs);
         }
 
         private void OnPreviewFeedback(object sender, FeedbackPreviewEventArgs eventArgs)
