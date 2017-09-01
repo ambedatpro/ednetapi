@@ -139,6 +139,9 @@ namespace EdNetApi.Journal
         [Description("Triggers when a new material is discovered")]
         MaterialDiscovered,
 
+        [Description("Triggers when scanning  a navigation beacon, before the scan data for all the bodies in the system is written into the journal")]
+        NavBeaconScan,
+
         [Description("Triggers when buying system data via the galaxy map")]
         BuyExplorationData,
 
@@ -171,6 +174,9 @@ namespace EdNetApi.Journal
 
         [Description("Triggers when purchasing drones")]
         BuyDrones,
+
+        [Description("Triggers when checking the status of a community goal")]
+        CommunityGoal,
 
         [Description("Triggers when opting out of a community goal")]
         CommunityGoalDiscard,
@@ -220,6 +226,9 @@ namespace EdNetApi.Journal
         [Description("Triggers when a mission has failed")]
         MissionFailed,
 
+        [Description("Triggers when a mission is updated with a new destination")]
+        MissionRedirected,
+
         [Description("Triggers when buying a module in outfitting")]
         ModuleBuy,
 
@@ -265,8 +274,14 @@ namespace EdNetApi.Journal
         [Description("Triggers when contributing materials to a \"research\" community goal")]
         ScientificResearch,
 
+        [Description("Triggers when delivering items to a Search and Rescue contact")]
+        SearchAndRescue,
+
         [Description("Triggers when selling unwanted drones back to the market")]
         SellDrones,
+
+        [Description("Triggers when selling a stored ship to raise funds when on insurance/rebuy screen")]
+        SellShipOnRebuy,
 
         [Description("Triggers when assigning a name to the ship in Starport Services")]
         SetUserShipName,
@@ -312,6 +327,9 @@ namespace EdNetApi.Journal
 
         [Description("Triggers when receiving payment for powerplay combat")]
         PowerplayVoucher,
+
+        [Description("Triggers when repairing modules using the Auto Field Maintenance Unit (AFMU)")]
+        AfmuRepairs,
 
         [Description("Triggers when approaching a planetary settlement")]
         ApproachSettlement,
@@ -382,6 +400,9 @@ namespace EdNetApi.Journal
         [Description("Triggers when deploying the SRV from a ship onto planet surface")]
         LaunchSrv,
 
+        [Description("Triggers when the game music 'mood' changes")]
+        Music,
+
         [Description("Triggers when the player’s rank increases")]
         Promotion,
 
@@ -393,6 +414,9 @@ namespace EdNetApi.Journal
 
         [Description("Triggers when a text message is received from another player or npc")]
         ReceiveText,
+
+        [Description("Triggers when the player's ship has been repaired by a repair drone")]
+        RepairDrone,
 
         [Description("Triggers when the player restarts after death")]
         Resurrect,
