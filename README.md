@@ -1,23 +1,14 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Build status](https://ci.appveyor.com/api/projects/status/0v7befd1pjlbeiw7?svg=true)](https://ci.appveyor.com/project/mbedatpro/ednetapi) [![NuGet](https://img.shields.io/nuget/v/EdNetApi.svg)](https://www.nuget.org/packages/EdNetApi/)
+
+[![Build status](https://ci.appveyor.com/api/projects/status/0v7befd1pjlbeiw7?svg=true)](https://ci.appveyor.com/project/mbedatpro/ednetapi) [![NuGet](https://img.shields.io/nuget/v/EdNetApi.svg)](https://www.nuget.org/packages/EdNetApi/)
 
 # EdNetApi
 Elite: Dangerous .NET/C# API
 
 This library is for C# developers who wish to create applications for the game Elite: Dangerous (https://www.elitedangerous.com/).
 
-## Namespaces
+## Examples
 
-### EdNetApi.Journal
-
-The Journal namespace contains logic for continuously reading the journal log files output by the game. This is wrapped by the EdNetApi.Information namespace and it's recommended you use that instead.
-
-### EdNetApi.Information
-
-The Information namespace contains logic for getting information from the journal log files.
-
-### Examples
-
-For now, please see the source code for Project.cs in EdNetApi.Example
+For now, please see the source code for [Project.cs](https://github.com/mbedatpro/ednetapi/blob/master/EdNetApi.Example/Program.cs) in EdNetApi.Example
 
 ## Legal
 
