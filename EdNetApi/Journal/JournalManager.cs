@@ -297,6 +297,8 @@ namespace EdNetApi.Journal
             string filenameToProcess,
             int lineNumberToStartAt)
         {
+            var skipFirstFile = false;
+
             while (true)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -319,6 +321,11 @@ namespace EdNetApi.Journal
                                     return filenameIsNew;
                                 }).OrderBy(path => path).ToList();
 
+                    if (skipFirstFile && filePathsToProcess.Any())
+                    {
+                        filePathsToProcess.RemoveAt(0);
+                    }
+
                     if (!filePathsToProcess.Any())
                     {
                         _proceedToNextJournalEvent.Wait(cancellationToken);
@@ -330,20 +337,17 @@ namespace EdNetApi.Journal
                     journalStreamReader = new StreamReader(journalFileStream);
 
                     var filename = Path.GetFileName(filePath);
-                    if (filename == null)
-                    {
-                        continue;
-                    }
-
                     if (lineNumberToStartAt > 0
                         && !filename.Equals(filenameToProcess, StringComparison.OrdinalIgnoreCase))
                     {
                         lineNumberToStartAt = 0;
                     }
 
+                    filenameToProcess = filename;
+
                     int lineNumber;
                     if (!ProcessAllExistingLines(
-                            filename,
+                            filenameToProcess,
                             journalStreamReader,
                             lineNumberToStartAt,
                             cancellationToken,
@@ -353,6 +357,7 @@ namespace EdNetApi.Journal
                     }
 
                     lineNumberToStartAt = 0;
+                    skipFirstFile = true;
 
                     if (filePathsToProcess.Count == 1)
                     {
@@ -362,12 +367,11 @@ namespace EdNetApi.Journal
                     else
                     {
                         // There are more files to process
-                        filenameToProcess = Path.GetFileName(filePathsToProcess.Skip(1).First());
                         continue;
                     }
 
                     // This is the only new file, wait for new entries
-                    if (!ProcessNewLines(filename, lineNumber, journalStreamReader, cancellationToken))
+                    if (!ProcessNewLines(filenameToProcess, lineNumber, journalStreamReader, cancellationToken))
                     {
                         return;
                     }
