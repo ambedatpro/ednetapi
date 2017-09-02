@@ -299,7 +299,7 @@ namespace EdNetApi.Information
         {
             if (eventArgs.JournalEntry.Event == JournalEventType.Fileheader)
             {
-                PruneExpiredMissions(eventArgs.JournalEntry.Timestamp);       
+                PruneExpiredMissions(eventArgs.JournalEntry.Timestamp);
             }
 
             ProcessJournalEntry(eventArgs.Filename, eventArgs.LineNumber, true, eventArgs.JournalEntry);
