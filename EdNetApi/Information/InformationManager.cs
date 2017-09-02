@@ -297,8 +297,20 @@ namespace EdNetApi.Information
 
         private void OnJournalEntryRead(object sender, JournalEntryEventArgs eventArgs)
         {
+            if (eventArgs.JournalEntry.Event == JournalEventType.Fileheader)
+            {
+                PruneExpiredMissions(eventArgs.JournalEntry.Timestamp);       
+            }
+
             ProcessJournalEntry(eventArgs.Filename, eventArgs.LineNumber, true, eventArgs.JournalEntry);
             JournalEntryRead.Raise(sender, eventArgs);
+        }
+
+        private void PruneExpiredMissions(DateTime currentTimestamp)
+        {
+            // If game is offline during mission expiry, it will not produce a MissionFailed event
+            // Remove expired events
+            CurrentMissions = CurrentMissions?.Where(mission => mission.Expiry > currentTimestamp).ToArray();
         }
 
         private void OnPreviewFeedback(object sender, FeedbackPreviewEventArgs eventArgs)
